@@ -1,8 +1,6 @@
 %% Vertebral Column (=Wirbelsäule) Datensatz: kNN-Analyse
 % https://archive.ics.uci.edu/ml/datasets/Vertebral+Column
-% Zielgroessen: Orthopaedische Klassen: DH (Disk Hernia), Spondylolisthesis (SL), Normal (NO) and Abnormal (AB)
-% Der Datensatz 2C enthaelt die Klassen AB und NO und der andere die
-% Klassen DH, SL und NO. 
+% Zielgroessen: Orthopaedische Klassen: DH (Disk Hernia), SL (Spondylolisthesis), NO (Normal)
 % 6 biomechanische Messwerte als Merkmale (das letzte ist die Klasse)
 
 fileName = fullfile('..', 'Datensaetze', 'VertebralColumn.csv'); 
@@ -44,10 +42,10 @@ trainErr = sum(lblPred ~= lbl) / length(lbl);
 %% Besten Wert fuer k finden
 
 nChunks = 5;   % mit 80% wird jeweils trainiert
-nRuns = 20;
+nRuns = 10;
 kVec  = [1:2:51, 56:5:101]; 
 nk = length(kVec);
-meanTestErr = zeros(nk,1); 
+meanXValErr = zeros(nk,1); 
 meanTrainErr = zeros(nk,1); 
 tic;
 for kk=1:nk
@@ -55,22 +53,22 @@ for kk=1:nk
     trainFunc = @(d,l) fitcknn(d,l, 'NumNeighbors', kVec(kk));
     [xTestErr, xTrainErr] = xval(trainFunc, @predict, ...
        D, lbl, nChunks, nRuns);
-    meanTestErr(kk) = mean(xTestErr); 
+    meanXValErr(kk) = mean(xTestErr); 
     meanTrainErr(kk) = mean(xTrainErr); 
 end
 toc
 
 %% Graphisch darstellen
-plot(kVec, meanTestErr, 'r', kVec, meanTrainErr, 'b', 'Linewidth', 2); 
+plot(kVec, meanXValErr, 'r', kVec, meanTrainErr, 'b', 'Linewidth', 2); 
 axis tight; 
-legend('Testfehler', 'Trainingsfehler', 'Location', 'SouthEast'); 
+legend('Xval-Fehler', 'Trainingsfehler', 'Location', 'SouthEast'); 
 ylim([0, 0.3]);
 xlabel('Anzahl Nachbarn'); 
 ylabel('Fehlerrate'); 
-[errOpt, idx] = min(meanTestErr); 
+[errOpt, idx] = min(meanXValErr); 
 kOpt = kVec(idx);
-title('Kreuzvalidierung Naive Bayes', ...
-   sprintf('Bester Testfehler: %.3f bei k=%i', errOpt, kOpt)); 
+title('Kreuzvalidierung kNN', ...
+   sprintf('Bester Testfehler: %.2f%% bei k=%i', 100*errOpt, kOpt)); 
 
 %% Nochmal mit ganzem Datensatz 
 knn = fitcknn(D, lbl, 'NumNeighbors', kOpt);
