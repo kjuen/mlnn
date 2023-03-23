@@ -100,44 +100,20 @@ nChunks = 5;   % mit 80% wird jeweils trainiert
 nRuns = 50; 
 trainFunc = @(dat,lbl) fitcknn(dat,lbl, 'NumNeighbors',k);
 tic
-[xTestErr, xTrainErr] = xval(trainFunc, @predict, ...
+[xValErr, xTrainErr] = xval(trainFunc, @predict, ...
     trainMat, trainLbl, nChunks, nRuns);
 toc
  
 %% Darstellung als Histogramm
 figure;
-histogram(xTestErr); 
+histogram(xValErr); 
 hold on; histogram(xTrainErr); hold off; 
 legend('Testfehler', 'Trainingsfehler'); 
 title({sprintf('kNN, k= %i', k); 
-    sprintf('Mittlerer Testfehler: %.3f%%', 100*mean(xTestErr)); 
+    sprintf('Mittlerer XVal-Fehler: %.3f%%', 100*mean(xValErr)); 
     sprintf('Mittlerer Trainingsfehler: %.3f%%', 100*mean(xTrainErr));});
 
-%% Besten Wert fuer k suchen
-nChunks = 5;   % mit 80% wird jeweils trainiert
-nRuns = 20;
-kVec = [1:21, 23:2:41, 45:5:90];
-nk = length(kVec);
-meanTestErr = zeros(nk,1); 
-meanTrainErr = zeros(nk,1); 
-tic;
-for kk=1:nk
-    disp(kVec(kk))
-    trainFunc = @(dat,lbl) fitcknn(dat,lbl, 'NumNeighbors', kVec(kk));
-    [xTestErr, xTrainErr] = xval(trainFunc, @predict, ...
-       trainMat, trainLbl, nChunks, nRuns);
-    meanTestErr(kk) = mean(xTestErr); 
-    meanTrainErr(kk) = mean(xTrainErr); 
-end
-toc
 
-%% Graphisch darstellen
-plot(kVec, meanTestErr, 'r', kVec, meanTrainErr, 'b', 'Linewidth', 2); 
-legend('Testfehler', 'Trainingsfehler'); 
-ylim([0, 0.3]);
-xlabel('Anzahl Nachbarn k'); 
-ylabel('Fehlerrate'); 
-title('Kreuzvalidierung knn'); 
 
  
 %% knn und Spiral data
@@ -148,7 +124,7 @@ gscatter(xySpiral(:,1), xySpiral(:,2), lblSpiral, 'rg', '..', 15*[1,1]);
 xlim(xdim), ylim(ydim); 
 
 %% knn anwenden
-k =250;
+k =1;
 kNN = fitcknn(xySpiral, lblSpiral, 'NumNeighbors',k); 
 % Klassifikationsregionen sichtbar machen
 nGrid = 250; 
@@ -168,22 +144,22 @@ nChunks = 5;   % mit 80% wird jeweils trainiert
 nRuns = 5;
 kVec = [1:21, 23:2:41, 45:5:175];
 nk = length(kVec);
-meanTestErr = zeros(nk,1); 
+meanXvalErr = zeros(nk,1); 
 meanTrainErr = zeros(nk,1); 
 tic;
 for kk=1:nk
     disp(kVec(kk))
     trainFunc = @(dat,lbl) fitcknn(dat,lbl, 'NumNeighbors', kVec(kk));
-    [xTestErr, xTrainErr] = xval(trainFunc, @predict, ...
+    [xValErr, xTrainErr] = xval(trainFunc, @predict, ...
        xySpiral, lblSpiral, nChunks, nRuns);
-    meanTestErr(kk) = mean(xTestErr); 
+    meanXvalErr(kk) = mean(xValErr); 
     meanTrainErr(kk) = mean(xTrainErr); 
 end
 toc
 
 %% Graphisch darstellen
-plot(kVec, meanTestErr, 'r', kVec, meanTrainErr, 'b', 'Linewidth', 2); 
-legend('Testfehler', 'Trainingsfehler'); 
+plot(kVec, meanXvalErr, 'r', kVec, meanTrainErr, 'b', 'Linewidth', 2); 
+legend('XVal-Fehler', 'Trainingsfehler'); 
 ylim([0, 0.3]);
 xlabel('Anzahl Nachbarn k'); 
 ylabel('Fehlerrate'); 
