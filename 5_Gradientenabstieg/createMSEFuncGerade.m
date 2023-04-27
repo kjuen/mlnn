@@ -27,10 +27,10 @@ function [MSEFunc, MSEGradFunc, MSEGradFuncBatch] = createMSEFuncGerade(x,y)
    MSEGradFunc = @MSEGradImpl;
    
 
-   function MSEGradBatch = MSEGradImplBatch(bw, mask) 
+   function MSEGradBatch = MSEGradImplBatch(wb, mask) 
       
-      b = bw(1);
-      w = bw(2); 
+      w = wb(1);
+      b = wb(2); 
       
       xBatch = x(mask);
       yBatch = y(mask); 
