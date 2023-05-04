@@ -336,17 +336,8 @@ errTestML = sum(testLbl ~= testLblPred)/length(testLbl);
 
 %% Bsp 4: Xor-Daten
 % Daten erzeugen und plotten
-Ngr = 50;
-s = 2; 
-mu1 = s*[1,1]; 
-mu2 = s*[-1,-1]; 
-mu3 = s*[-1,1]; 
-mu4 = s*[1,-1]; 
-X = [randn(Ngr,2) + mu1; ...
-   randn(Ngr,2) + mu2; ...
-   randn(Ngr,2) + mu3; ...
-   randn(Ngr,2) + mu4]; 
-lbl = categorical([ones(2*Ngr,1); 2*ones(2*Ngr,1)], 1:2); 
+load(fullfile('..', 'Datensaetze', 'Xor2D.mat'));
+
 xdim = 1.1*[min(X(:,1)), max(X(:,1))]; 
 ydim = 1.1*[min(X(:,2)), max(X(:,2))];
 fD = figure('WindowStyle', 'docked'); 
@@ -360,7 +351,7 @@ C = length(categories(lbl));   % Anzahl Klassen
 
 %% 4.1) Softmax-Klassifizierung
 lambda = 1;
-[xs, dxs] = xsSoftmaxKlass(X, lbl, lambda);
+[~, dxs] = xsSoftmaxKlass(X, lbl, lambda);
 w0 = 0.001 * randn(P,C);
 b0 = 0.0 * rand(1, C);
 wbVec0 = [w0(:); b0'];
